@@ -64,7 +64,7 @@ setuptools.setup(
         "scripts/pypi/mysql_dump.sh"
     ],
     py_modules = [
-        "automium"
+        "mysql_dump"
     ],
     package_dir = {
         "" : os.path.normpath("src/lib")

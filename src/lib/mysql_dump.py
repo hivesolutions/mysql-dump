@@ -39,7 +39,9 @@ __license__ = "GNU General Public License (GPL), Version 3"
 
 import os
 import sys
+import time
 import types
+import getopt
 import shutil
 import zipfile
 import MySQLdb
@@ -74,22 +76,31 @@ CONVERSION = {
     float : lambda v: str(v),
     types.NoneType : lambda v: "null"
 }
+""" Conversion map to be used to convert python types
+into mysql string value types """
 
 RESOLVE = {
     "PRI" : "primary key"
 }
+""" Resolution map used to resolve the some of the table information
+into the equivalent schema oriented values """
+
+QUIET = False
+""" The global "static" flag that control if any output should
+be sent to the standard output / error """
 
 ## OBJECTIVES
 ## LER UM JSON global que esta no home directory ou no /etc com a configuracao da migracao
 
 class Exporter:
 
-    def __init__(self, database, host = None, user = None, password = None):
+    def __init__(self, database, host = None, user = None, password = None, file_path = None):
         self.database = database
         self.host = host or "127.0.0.1"
         self.user = user or "root"
         self.password = password or ""
-        self.base_path = "c:/export"
+        self.file_path = file_path or "export.zip"
+        self.base_path = "export"
         self.connection = None
 
     def connect(self):
@@ -106,8 +117,10 @@ class Exporter:
         self.connect()
 
     def dump(self):
-        print("------------------------------------------------------------------------")
-        print("Dumping '%s' database into '%s'" % (self.database, self.base_path))
+        print_m("------------------------------------------------------------------------")
+        print_m("Dumping '%s@%s' database into '%s'" % (self.database, self.host, self.base_path))
+        initial = time.time()
+
         self.connect()
         if not os.path.exists(self.base_path): os.makedirs(self.base_path)
 
@@ -118,6 +131,10 @@ class Exporter:
         finally:
             shutil.rmtree(self.base_path, ignore_errors = True)
 
+        final = time.time()
+        delta = final - initial
+        print_m("Finished dumping of database in %d seconds" % delta)
+
     def dump_schema(self):
         file_path = os.path.join(self.base_path, "schema.sql")
         file = open(file_path, "wb")
@@ -125,6 +142,9 @@ class Exporter:
         finally: file.close()
 
     def _dump_schema(self, file):
+        print_m("Dumping the table schema into schema file...")
+        initial = time.time()
+
         tables = self.fetch_s(
             "select table_name from information_schema.tables where table_schema = '%s'" % self.database
         )
@@ -136,7 +156,8 @@ class Exporter:
         index = 1
 
         for table in tables:
-            print "\r[dump schema] %d/%d tables exported" % (index, tables_l),
+            reset_line()
+            print_m("\r[%d/%d] - %s" % (index, tables_l, table), False)
 
             columns = self.fetch_a(
                 "select column_name, column_type, column_key\
@@ -160,7 +181,15 @@ class Exporter:
 
             index += 1
 
+        final = time.time()
+        delta = final - initial
+        reset_line()
+        print_m("\rDumped table schema in %d seconds" % delta)
+
     def dump_tables(self):
+        print_m("Dumping the table data into data files...")
+        initial = time.time()
+
         tables = self.fetch_s(
             "select table_name from information_schema.tables where table_schema = '%s'" % self.database
         )
@@ -172,7 +201,8 @@ class Exporter:
         index = 1
 
         for table in tables:
-            print "\r[dump tables] %d/%d tables exported" % (index, tables_l),
+            reset_line()
+            print_m("\r[%d/%d] - %s" % (index, tables_l, table), False)
 
             columns = self.fetch_s(
                 "select column_name from information_schema.columns where table_schema = '%s' and table_name = '%s'" %\
@@ -190,6 +220,11 @@ class Exporter:
 
             index += 1
 
+        final = time.time()
+        delta = final - initial
+        reset_line()
+        print_m("\rDumped table data in %d seconds" % delta)
+
     def dump_data(self, file, data):
         for item in data:
             is_first = True
@@ -203,7 +238,10 @@ class Exporter:
             file.write("\n")
 
     def compress(self, target = None):
-        target = target or self.base_path + ".zip"
+        target = target or self.file_path
+        print_m("Compressing database information into '%s'..." % target)
+        initial = time.time()
+
         zip = zipfile.ZipFile(target, "w", zipfile.ZIP_DEFLATED)
         try:
             root_l = len(self.base_path) + 1
@@ -213,6 +251,10 @@ class Exporter:
                     zip.write(path, path[root_l:])
         finally:
             zip.close()
+
+        final = time.time()
+        delta = final - initial
+        print_m("Compressed database information in %d seconds" % delta)
 
     def fetch_o(self, query):
         self.ensure()
@@ -235,46 +277,77 @@ class Exporter:
         elements = [item[0] for item in data]
         return elements
 
-def dump(database, host = None, user = None, password = None):
+def reset_line():
+    line = "\r" + (" " * 78)
+    print_m(line, False)
+
+def print_m(message, newline = True):
+    if QUIET: return
+    sys.stdout.write(message)
+    newline and sys.stdout.write("\n")
+
+def dump(database, host = None, user = None, password = None, file_path = None):
     exporter = Exporter(
         database,
         host = host,
         user = user,
-        password = password
+        password = password,
+        file_path = file_path
     )
     exporter.dump()
 
 def information():
     # print the branding information text and then displays
     # the python specific information in the screen
-    print(BRANDING_TEXT % (VERSION, RELEASE, BUILD, RELEASE_DATE))
-    print(VERSION_PRE_TEXT + sys.version)
+    print_m(BRANDING_TEXT % (VERSION, RELEASE, BUILD, RELEASE_DATE))
+    print_m(VERSION_PRE_TEXT + sys.version)
+
+def help():
+    print_m("Usage:")
+    print_m("mysql_dump [--quiet] [--help] [--host=] [--user=] [--password=]\n\
+    [--database=] [--file=]")
 
 def _escape(value):
     return value.replace("'", "''")
 
 def main():
-    #dump(
-    #    "test",
-    #    host = "hole1.hive",
-    #    user = "root",
-    #    password = "root"
-    #)
+    global QUIET
 
-    #dump(
-    #    "wordpress",
-    #    host = "db.hive",
-    #    user = "root",
-    #    password = "root"
-    #)
+    database = "default"
+    host = "127.0.0.1"
+    user = ""
+    password = ""
+    file_path = "export.zip"
+
+    # parses the various options from the command line and then
+    # iterates over the map of them top set the appropriate values
+    # for the variables associated with the options
+    _options, _arguments = getopt.getopt(sys.argv[1:], "hqd:h:u:p:f:", [
+        "help",
+        "quiet",
+        "database=",
+        "host=",
+        "user=",
+        "password=",
+        "file="
+    ])
+    for option, argument in _options:
+        if option in ("-h", "--help"): help(); exit(0)
+        elif option in ("-q", "--quiet"): QUIET = True
+        elif option in ("-d", "--database"): database = argument
+        elif option in ("-h", "--host"): host = argument
+        elif option in ("-u", "--user"): user = argument
+        elif option in ("-p", "--password"): password = argument
+        elif option in ("-f", "--file"): file_path = argument
 
     information()
     dump(
-        "ldj_omni_release",
-        host = "servidor5.hive",
-        user = "root",
-        password = "root"
-    )    
+        database,
+        host = host,
+        user = user,
+        password = password,
+        file_path = file_path
+    )
 
 if __name__ == "__main__":
     main()
