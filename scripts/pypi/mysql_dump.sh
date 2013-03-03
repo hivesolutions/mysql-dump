@@ -36,7 +36,7 @@ SCRIPT_DIRECTORY_PATH=$(dirname $(readlink -f $0))
 
 # executes the initial python script with
 # the provided arguments
-$PYTHON_PATH "$SCRIPT_DIRECTORY_PATH/$SCRIPT_NAME" $*
+$PYTHON_PATH "$SCRIPT_DIRECTORY_PATH/$SCRIPT_NAME" "$@"
 
 # exits the process
 exit $?
