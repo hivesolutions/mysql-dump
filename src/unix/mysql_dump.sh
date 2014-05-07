@@ -27,8 +27,7 @@
 # __license__   = GNU General Public License (GPL), Version 3
 
 # sets the temporary variables
-USR_BIN_PATH=/usr/bin
-PYTHON_PATH=$USR_BIN_PATH/python
+PYTHON_PATH=python
 RELATIVE_PATH=../lib/
 SCRIPT_NAME=mysql_dump.py
 
