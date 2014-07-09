@@ -162,7 +162,7 @@ class Exporter:
             columns = self.fetch_a(
                 "select column_name, column_type, column_key\
                      from information_schema.columns\
-                     where table_schema = '%s' and table_name = '%s'" %\
+                     where table_schema = '%s' and table_name = '%s'" %
                 (self.database, table)
             )
 
@@ -205,7 +205,7 @@ class Exporter:
             print_m("\r[%d/%d] - %s" % (index, tables_l, table), False)
 
             columns = self.fetch_s(
-                "select column_name from information_schema.columns where table_schema = '%s' and table_name = '%s'" %\
+                "select column_name from information_schema.columns where table_schema = '%s' and table_name = '%s'" %
                 (self.database, table)
             )
             columns_s = ", ".join(columns)
