@@ -89,9 +89,6 @@ QUIET = False
 """ The global "static" flag that control if any output should
 be sent to the standard output / error """
 
-## OBJECTIVES
-## LER UM JSON global que esta no home directory ou no /etc com a configuracao da migracao
-
 class Exporter:
 
     def __init__(self, database, host = None, user = None, password = None, file_path = None):

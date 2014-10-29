@@ -40,37 +40,29 @@ __license__ = "GNU General Public License (GPL), Version 3"
 import os
 import setuptools
 
-# retrieves the current root directory (from the
-# currently executing file) and in case its not
-# the top level root directory changed the current
-# executing directory into it (avoids relative path
-# problems in executing setuptools)
-root_directory = os.path.dirname(__file__)
-if not root_directory == "": os.chdir(root_directory)
-
 setuptools.setup(
     name = "mysql_dump",
-    version = "0.1.26",
+    version = "0.2.0",
     author = "Hive Solutions Lda.",
     author_email = "development@hive.pt",
     description = "MySQL Dump System",
     license = "GNU General Public License (GPL), Version 3",
     keywords = "mysql dump database export",
-    url = "http://mysql-dump.com",
+    url = "http://mysqldump.hive.pt",
     zip_safe = True,
-    scripts = [
-        "scripts/pypi/mysql_dump_pypi.py",
-        "scripts/pypi/mysql_dump.bat",
-        "scripts/pypi/mysql_dump.sh"
-    ],
     py_modules = [
         "mysql_dump"
     ],
     package_dir = {
-        "" : os.path.normpath("src/lib")
+        "" : os.path.normpath("src")
+    },
+    entry_points = {
+        "console_scripts" : [
+            "mysql_dump = mysql_dump:main"
+        ]
     },
     classifiers = [
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 5 - Production/Stable",
         "Topic :: Utilities",
         "License :: OSI Approved :: GNU General Public License (GPL)",
         "Operating System :: OS Independent",
