@@ -138,6 +138,10 @@ class Exporter(object):
         file = open(file_path, "wb")
         try: self._dump_schema(file)
         finally: file.close()
+    
+    def _write_file(self, file, data, encoding = "utf-8"):
+        if type(data) == legacy.UNICODE: data = data.encode(encoding)
+        file.write(data)
 
     def _dump_schema(self, file):
         print_m("Dumping the table schema into schema file...")
@@ -166,16 +170,16 @@ class Exporter(object):
 
             keys = [column[0] for column in columns if column[2] == "PRI"]
             keys_s = ", ".join(keys)
-            file.write("create table %s (\n" % table)
+            self._write_file(file, "create table %s (\n" % table)
             for column in columns:
                 column = list(column)
                 del column[2]
 
                 column_s = " ".join(column)
-                file.write("    %s,\n" % column_s)
+                self._write_file(file, "    %s,\n" % column_s)
 
-            file.write("    primary key(%s)" % keys_s)
-            file.write("\n);\n")
+            self._write_file(file, "    primary key(%s)" % keys_s)
+            self._write_file(file, "\n);\n")
 
             index += 1
 
@@ -228,12 +232,12 @@ class Exporter(object):
             is_first = True
             for value in item:
                 if is_first: is_first = False
-                else: file.write(",")
+                else: self._write_file(file, ",")
                 value_t = type(value)
                 value_f = CONVERSION.get(value_t, str)
                 value_s = value_f(value)
-                file.write(value_s)
-            file.write("\n")
+                self._write_file(file, value_s)
+            self._write_file(file, "\n")
 
     def compress(self, target = None):
         target = target or self.file_path
