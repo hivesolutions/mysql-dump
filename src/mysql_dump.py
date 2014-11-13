@@ -40,11 +40,12 @@ __license__ = "GNU General Public License (GPL), Version 3"
 import os
 import sys
 import time
-import types
 import getopt
 import shutil
 import zipfile
 import MySQLdb
+
+import legacy
 
 VERSION = "0.1.0"
 """ The current version value for the mysql dump executable """
@@ -70,11 +71,11 @@ of the branding text second line """
 
 CONVERSION = {
     str : lambda v: "'%s'" % _escape(v),
-    unicode : lambda v: "'%s'" % _escape(v.encode("utf-8")),
+    legacy.UNICODE : lambda v: "'%s'" % _escape(v.encode("utf-8")),
     int : lambda v: str(v),
-    long : lambda v: str(v),
+    legacy.LONG : lambda v: str(v),
     float : lambda v: str(v),
-    types.NoneType : lambda v: "null"
+    type(None) : lambda v: "null"
 }
 """ Conversion map to be used to convert python types
 into mysql string value types """

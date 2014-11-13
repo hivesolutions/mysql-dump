@@ -3,6 +3,7 @@
 	<name>mysql_dump</name>
 	<comment></comment>
 	<projects>
+		<project>legacy</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
