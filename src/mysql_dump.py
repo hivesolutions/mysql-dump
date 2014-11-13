@@ -70,8 +70,8 @@ VERSION_PRE_TEXT = "Python "
 of the branding text second line """
 
 CONVERSION = {
-    str : lambda v: "'%s'" % _escape(v),
-    legacy.UNICODE : lambda v: "'%s'" % _escape(v.encode("utf-8")),
+    legacy.BYTES : lambda v: "'%s'" % _escape(v.decode("utf-8")),
+    legacy.UNICODE : lambda v: "'%s'" % _escape(v),
     int : lambda v: str(v),
     legacy.LONG : lambda v: str(v),
     float : lambda v: str(v),
@@ -101,7 +101,7 @@ class Exporter(object):
         self.base_path = "export"
         self.connection = None
 
-    def connect(self):
+    def connect(self, encoding = "utf8"):
         if self.connection: return
         self.connection = MySQLdb.connect(
             self.host,
@@ -109,6 +109,7 @@ class Exporter(object):
             passwd = self.password,
             db = self.database
         )
+        self.connection.set_character_set(encoding)
 
     def ensure(self):
         if self.connection: return
