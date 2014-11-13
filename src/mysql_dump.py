@@ -90,7 +90,7 @@ QUIET = False
 """ The global "static" flag that control if any output should
 be sent to the standard output / error """
 
-class Exporter:
+class Exporter(object):
 
     def __init__(self, database, host = None, user = None, password = None, file_path = None):
         self.database = database
