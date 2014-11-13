@@ -61,6 +61,9 @@ setuptools.setup(
             "mysql_dump = mysql_dump:main"
         ]
     },
+    install_requires = [
+        "legacy"
+    ],
     classifiers = [
         "Development Status :: 5 - Production/Stable",
         "Topic :: Utilities",
