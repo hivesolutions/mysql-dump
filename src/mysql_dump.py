@@ -139,7 +139,7 @@ class Exporter(object):
         file = open(file_path, "wb")
         try: self._dump_schema(file)
         finally: file.close()
-    
+
     def _write_file(self, file, data, encoding = "utf-8"):
         if type(data) == legacy.UNICODE: data = data.encode(encoding)
         file.write(data)
