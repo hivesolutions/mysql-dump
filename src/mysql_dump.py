@@ -109,7 +109,8 @@ class Exporter(object):
             passwd = self.password,
             db = self.database
         )
-        self.connection.set_character_set(encoding)
+        has_charset = hasattr(self.connection, "set_character_set")
+        if has_charset: self.connection.set_character_set(encoding)
 
     def ensure(self):
         if self.connection: return
