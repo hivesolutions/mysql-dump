@@ -246,7 +246,12 @@ class Exporter(object):
         print_m("Compressing database information into '%s'..." % target)
         initial = time.time()
 
-        zip = zipfile.ZipFile(target, "w", zipfile.ZIP_DEFLATED)
+        zip = zipfile.ZipFile(
+            target,
+            mode = "w",
+            compression = zipfile.ZIP_DEFLATED,
+            allowZip64 = True
+        )
         try:
             root_l = len(self.base_path) + 1
             for base, _dirs, files in os.walk(self.base_path):
