@@ -48,7 +48,7 @@ import MySQLdb
 import legacy
 
 VERSION = "0.1.0"
-""" The current version value for the mysql dump executable """
+""" The current version value for the MySQL dump executable """
 
 RELEASE = "100"
 """ The release value, should be an internal value related
@@ -78,7 +78,7 @@ CONVERSION = {
     type(None) : lambda v: "null"
 }
 """ Conversion map to be used to convert python types
-into mysql string value types """
+into MySQL string value types """
 
 RESOLVE = {
     "PRI" : "primary key"
