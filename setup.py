@@ -41,7 +41,7 @@ import os
 import setuptools
 
 setuptools.setup(
-    name = "mysql_dump",
+    name = "mysql-dump",
     version = "0.2.2",
     author = "Hive Solutions Lda.",
     author_email = "development@hive.pt",

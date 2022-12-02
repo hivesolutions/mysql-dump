@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>mysql_dump</name>
+	<name>mysql-dump</name>
 	<comment></comment>
 	<projects>
 		<project>legacy</project>
