@@ -2,4 +2,4 @@
 
 /dist
 /build
-/src/mysql-dump.egg-info
+/src/mysql_dump.egg-info
